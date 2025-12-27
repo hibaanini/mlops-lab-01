@@ -50,7 +50,7 @@ jobs:
         run: |
           python - << 'EOF'
           import json
-          threshold = float("${{ vars.F1_GATE_THRESHOLD }}")
+          threshold = float("${{ secrets.F1_GATE_THRESHOLD }}")  # Utilisation du secret
           with open("reports/metrics.json", "r", encoding="utf-8") as f:
               metrics = json.load(f)
           f1 = float(metrics.get("f1", 0.0))
