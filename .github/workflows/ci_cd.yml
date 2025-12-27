@@ -50,9 +50,18 @@ jobs:
         run: |
           python - << 'EOF'
           import json
-          threshold = float("${{ secrets.F1_GATE_THRESHOLD }}")  # Utilisation du secret
+          import sys
+
+          # Récupérer le secret
+          threshold_str = "${{ secrets.F1_GATE_THRESHOLD }}"
+          if not threshold_str:
+              sys.exit("Erreur : F1_GATE_THRESHOLD vide ou non défini !")
+          threshold = float(threshold_str)
+
+          # Lire les métriques
           with open("reports/metrics.json", "r", encoding="utf-8") as f:
               metrics = json.load(f)
+
           f1 = float(metrics.get("f1", 0.0))
           print(f"F1={f1} | seuil={threshold}")
           if f1 < threshold:
@@ -87,7 +96,7 @@ jobs:
         run: |
           echo "=== Phase CD (simulée) ==="
           echo "ENV               : ${{ vars.APP_ENV }}"
-          echo "F1 gate           : ${{ vars.F1_GATE_THRESHOLD }}"
+          echo "F1 gate           : ${{ secrets.F1_GATE_THRESHOLD }}"
           echo "Secret (demo)     : ${{ secrets.DEMO_SECRET }}"
           echo
           echo "Artefacts prêts :"
