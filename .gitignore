@@ -3,4 +3,9 @@ _pycache_/
 *.pyc
 logs/
 models/
-data/
+# Ignorer les données brutes
+data/*
+
+# MAIS autoriser les fichiers DVC
+!data/*.dvc
+!data/.gitignore
