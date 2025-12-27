@@ -52,8 +52,8 @@ jobs:
           import json
           import sys
 
-          # Récupérer le secret
-          threshold_str = "${{ secrets.F1_GATE_THRESHOLD }}"
+          # Récupérer la variable F1_GATE_THRESHOLD
+          threshold_str = "${{ vars.F1_GATE_THRESHOLD }}"
           if not threshold_str:
               sys.exit("Erreur : F1_GATE_THRESHOLD vide ou non défini !")
           threshold = float(threshold_str)
@@ -96,7 +96,7 @@ jobs:
         run: |
           echo "=== Phase CD (simulée) ==="
           echo "ENV               : ${{ vars.APP_ENV }}"
-          echo "F1 gate           : ${{ secrets.F1_GATE_THRESHOLD }}"
+          echo "F1 gate           : ${{ vars.F1_GATE_THRESHOLD }}"
           echo "Secret (demo)     : ${{ secrets.DEMO_SECRET }}"
           echo
           echo "Artefacts prêts :"
