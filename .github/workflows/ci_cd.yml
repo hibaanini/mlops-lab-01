@@ -50,12 +50,22 @@ jobs:
         run: dvc pull
 
       - name: Vérifier métriques (Quality Gate F1)
+        env:
+          F1_GATE_THRESHOLD: ${{ secrets.F1_GATE_THRESHOLD }}
         run: |
           python - << 'EOF'
           import json
-          threshold = float("${{ vars.F1_GATE_THRESHOLD }}")
+          import os
+          import sys
+
+          threshold_str = os.environ.get("F1_GATE_THRESHOLD")
+          if not threshold_str:
+              sys.exit("Erreur : F1_GATE_THRESHOLD vide ou non défini !")
+          threshold = float(threshold_str)
+
           with open("reports/metrics.json", "r", encoding="utf-8") as f:
               metrics = json.load(f)
+
           f1 = float(metrics.get("f1", 0.0))
           print(f"F1={f1} | seuil={threshold}")
           if f1 < threshold:
@@ -90,7 +100,7 @@ jobs:
         run: |
           echo "=== Phase CD (simulée) ==="
           echo "ENV               : ${{ vars.APP_ENV }}"
-          echo "F1 gate           : ${{ vars.F1_GATE_THRESHOLD }}"
+          echo "F1 gate           : ${{ secrets.F1_GATE_THRESHOLD }}"
           echo "Secret (demo)     : ${{ secrets.DEMO_SECRET }}"
           echo
           echo "Artefacts prêts :"
