@@ -14,15 +14,15 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ vars.PY_VERSION }}
+          python-version: ${{ secrets.PY_VERSION }}  # version Python depuis secret
 
       - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: pip-${{ runner.os }}-${{ vars.PY_VERSION }}-${{ hashFiles('**/requirements.txt') }}
+          key: pip-${{ runner.os }}-${{ secrets.PY_VERSION }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            pip-${{ runner.os }}-${{ vars.PY_VERSION }}-
+            pip-${{ runner.os }}-${{ secrets.PY_VERSION }}-
 
       - name: Installer dépendances
         run: |
@@ -33,9 +33,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .dvc/cache
-          key: dvc-${{ runner.os }}-${{ vars.PY_VERSION }}-${{ github.sha }}
+          key: dvc-${{ runner.os }}-${{ secrets.PY_VERSION }}-${{ github.sha }}
           restore-keys: |
-            dvc-${{ runner.os }}-${{ vars.PY_VERSION }}-
+            dvc-${{ runner.os }}-${{ secrets.PY_VERSION }}-
 
       - name: Afficher le DAG DVC
         run: dvc dag
@@ -48,27 +48,27 @@ jobs:
 
       - name: Vérifier métriques (Quality Gate F1)
         env:
-          F1_GATE_THRESHOLD: ${{ secrets.F1_GATE_THRESHOLD }}
+          F1_GATE_THRESHOLD: ${{ secrets.F1_GATE_THRESHOLD }}  # secret ici
         run: |
           python - << 'EOF'
-          import json
-          import os
-          import sys
+import json
+import os
+import sys
 
-          threshold_str = os.environ.get("F1_GATE_THRESHOLD")
-          if not threshold_str:
-              sys.exit("Erreur : F1_GATE_THRESHOLD vide ou non défini !")
-          threshold = float(threshold_str)
+threshold_str = os.getenv("F1_GATE_THRESHOLD")
+if not threshold_str:
+    sys.exit("Erreur : F1_GATE_THRESHOLD vide ou non défini !")
+threshold = float(threshold_str)
 
-          with open("reports/metrics.json", "r", encoding="utf-8") as f:
-              metrics = json.load(f)
+with open("reports/metrics.json", "r", encoding="utf-8") as f:
+    metrics = json.load(f)
 
-          f1 = float(metrics.get("f1", 0.0))
-          print(f"F1={f1} | seuil={threshold}")
-          if f1 < threshold:
-              raise SystemExit("Quality Gate échoué : F1 insuffisante")
-          print("Quality Gate validé")
-          EOF
+f1 = float(metrics.get("f1", 0.0))
+print(f"F1={f1} | seuil={threshold}")
+if f1 < threshold:
+    raise SystemExit("Quality Gate échoué : F1 insuffisante")
+print("Quality Gate validé")
+EOF
 
       - name: Upload artefacts ML
         uses: actions/upload-artifact@v4
@@ -96,7 +96,7 @@ jobs:
       - name: CD simulé (déploiement SSH)
         run: |
           echo "=== Phase CD (simulée) ==="
-          echo "ENV               : ${{ vars.APP_ENV }}"
+          echo "ENV               : ${{ secrets.APP_ENV }}"
           echo "F1 gate           : ${{ secrets.F1_GATE_THRESHOLD }}"
           echo "Secret (demo)     : ${{ secrets.DEMO_SECRET }}"
           echo
