@@ -9,3 +9,4 @@ data/*
 # MAIS autoriser les fichiers DVC
 !data/*.dvc
 !data/.gitignore
+/models

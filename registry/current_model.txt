@@ -1,1 +1,1 @@
-churn_model_v2_20251213_114646.joblib
+churn_model_v1_20251227_133524.joblib
